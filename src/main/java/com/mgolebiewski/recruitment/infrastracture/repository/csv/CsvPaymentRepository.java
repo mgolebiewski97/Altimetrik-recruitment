@@ -39,11 +39,13 @@ public class CsvPaymentRepository implements PaymentRepository {
 
   @Override
   public Payment save(Payment payment) {
+    log.trace("Saving payment: {}", payment);
     return payment.getId() == null ? saveNewPayment(payment) : updatePayment(payment);
   }
 
   @Override
   public Collection<Payment> findAll() {
+    log.trace("fetching all payments");
     Collection<Payment> payments = new ArrayList<>();
 
     try (
@@ -63,6 +65,7 @@ public class CsvPaymentRepository implements PaymentRepository {
 
   @Override
   public Optional<Payment> findByPaymentId(UUID paymentId) {
+    log.trace("fetching payment by payment id: {}", paymentId.toString());
     return findAll().stream()
         .filter(payment -> payment.getId().equals(paymentId))
         .findFirst();
@@ -70,6 +73,7 @@ public class CsvPaymentRepository implements PaymentRepository {
 
   @Override
   public void delete(UUID paymentId) {
+    log.trace("deleting payment with id: {}", paymentId);
     Collection<Payment> filteredPayments = findAll().stream()
         .filter(payment -> !payment.getId().equals(paymentId))
         .collect(Collectors.toList());
@@ -82,6 +86,7 @@ public class CsvPaymentRepository implements PaymentRepository {
   }
 
   private Payment updatePayment(Payment payment) {
+    log.trace("updating payment: {}", payment);
     Collection<Payment> modifiedPayments = findAll().stream()
         .map(fetchedPayment -> fetchedPayment.getId().equals(payment.getId()) ? payment : fetchedPayment)
         .collect(Collectors.toList());

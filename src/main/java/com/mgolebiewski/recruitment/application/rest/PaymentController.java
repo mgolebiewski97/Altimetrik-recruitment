@@ -16,6 +16,7 @@ import com.mgolebiewski.recruitment.application.validation.UUIDfield;
 import com.mgolebiewski.recruitment.domain.Payment;
 import com.mgolebiewski.recruitment.domain.service.PaymentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,6 +33,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @RequestMapping("/api/payment")
 @Validated
+@Slf4j
 public class PaymentController {
 
   private final PaymentService paymentService;
@@ -39,6 +41,7 @@ public class PaymentController {
 
   @PostMapping
   public PaymentResponseDTO createPayment(@RequestBody @Valid PaymentCreationDTO paymentCreationDTO) {
+    log.trace("Received payment POST request: {}", paymentCreationDTO);
     Payment payment = paymentService.createPayment(paymentMapper.toDomain(paymentCreationDTO));
     return paymentMapper.toDTO(payment);
   }
@@ -48,6 +51,7 @@ public class PaymentController {
       @PathVariable @UUIDfield String paymentIdString,
       @RequestBody @Valid PaymentCreationDTO paymentCreationDTO
   ) {
+    log.trace("Received payment PUT request: {}, with ID: {}", paymentCreationDTO, paymentIdString);
     UUID paymentId = UUID.fromString(paymentIdString);
     performIfPaymentExists(paymentId, () -> paymentService.updatePayment(paymentMapper.toDomain(paymentId, paymentCreationDTO)));
   }
@@ -61,12 +65,14 @@ public class PaymentController {
 
   @GetMapping("/{paymentIdString}")
   public PaymentResponseDTO getPaymentById(@Valid @PathVariable @UUIDfield String paymentIdString) {
+    log.trace("Received payment GET request with id: {}", paymentIdString);
     return paymentMapper.toDTO(paymentService.getPaymentById(UUID.fromString(paymentIdString))
         .orElseThrow(() -> getNotFoundStatusException(paymentIdString)));
   }
 
   @DeleteMapping("/{paymentIdString}")
   public void deletePayment(@Valid @PathVariable @UUIDfield String paymentIdString) {
+    log.trace("Received payment DELETE request: {}", paymentIdString);
     UUID paymentId = UUID.fromString(paymentIdString);
     performIfPaymentExists(paymentId, () -> paymentService.deletePayment(paymentId));
   }

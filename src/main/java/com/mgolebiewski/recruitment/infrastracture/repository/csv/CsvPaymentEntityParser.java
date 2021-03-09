@@ -16,6 +16,7 @@ import org.apache.commons.csv.CSVRecord;
 public class CsvPaymentEntityParser {
   Optional<Payment> parsePaymentCsvRecord(CSVRecord csvRecord, String[] headers) {
     try {
+      log.trace("Parsing csvRecord: {}, to Payment", csvRecord);
       return Optional.of(Payment.builder()
           .id(UUID.fromString(csvRecord.get(headers[0])))
           .amount(new BigDecimal(csvRecord.get(headers[1])))
@@ -31,6 +32,7 @@ public class CsvPaymentEntityParser {
 
   List<String> getPaymentRecordFields(Payment payment) {
     try {
+      log.trace("Parsing payment: {} to string fields", payment);
       return Arrays.asList(payment.getId().toString(),
           payment.getAmount().toString(),
           payment.getCurrency().getCurrencyCode(),
